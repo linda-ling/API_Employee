@@ -4,7 +4,6 @@ using API2.Repository.Data;
 using API2.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Net;
 
