@@ -7,7 +7,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Linq;
-
+using Microsoft.Extensions.Configuration;
+using System.Security.Claims;
+using System.Collections.Generic;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using System;
+using API2.Context;
 
 namespace API2.Controllers
 {
@@ -16,10 +23,14 @@ namespace API2.Controllers
     public class AccountsController : BaseController<Account, AccountRepository, string>
     {
         private readonly AccountRepository accountRepository;
-        public AccountsController(AccountRepository accountRepository) : base(accountRepository)
+        public IConfiguration _configuration;
+        public MyContext context;
+        public AccountsController(AccountRepository accountRepository, IConfiguration configuration, MyContext context) : base(accountRepository)
         {
             this.accountRepository = accountRepository;
-        }
+            this._configuration = configuration;
+            this.context = context;
+         }
 
         [Route("Login")]
         [HttpGet]
@@ -30,7 +41,48 @@ namespace API2.Controllers
             {
                 if (result == 1)
                 {
-                    return StatusCode(200, new { status = HttpStatusCode.OK, result, message = "Success, login!" });
+                    var getUserData = context.Employees.Where(e => e.Email == registerVM.Email || e.Phone == registerVM.Phone).FirstOrDefault(); //get email & role name
+                    //var account = context.Accounts.Where(a => a.NIK == getUserData.NIK).FirstOrDefault();
+                    //var role = context.AccountRoles.Where(a => a.NIK == account.NIK).FirstOrDefault();
+                    var role = context.Roles.Where(a => a.AccountRole.Any(ar => ar.Account.NIK == getUserData.NIK)).ToList();
+
+                    var claims = new List<Claim>
+                    {
+                        new Claim("Email", getUserData.Email),
+                        //new Claim(ClaimTypes.Email, getUserData.Email) //PAYLOAD
+                    };
+                    foreach (var item in role)
+                    {
+                        claims.Add(new Claim("Role", item.Name));
+                    }
+
+                    /*var tokenHandler = new JwtSecurityTokenHandler();
+                    var tokenKey = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+                    var tokenDescriptor = new SecurityTokenDescriptor
+                    {
+                        Subject = claims,
+                        Expires = DateTime.UtcNow.AddMinutes(10),
+                        SigningCredentials = new SigningCredentials
+                        (
+                            new SymmetricSecurityKey(tokenKey),
+                            SecurityAlgorithms.HmacSha256Signature
+                        )
+                    };
+                    var token = tokenHandler.CreateToken(tokenDescriptor);
+                    var idToken = tokenHandler.WriteToken(token);*/
+                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256); //HEADER
+                    var token = new JwtSecurityToken
+                                (
+                                    _configuration["Jwt:Issuer"],
+                                    _configuration["Jwt:Audience"],
+                                    claims,
+                                    expires: DateTime.UtcNow.AddMinutes(10),
+                                    signingCredentials: signIn
+                                );
+                    var idToken = new JwtSecurityTokenHandler().WriteToken(token); //Generate Token
+                    claims.Add(new Claim("TokenSecurity", idToken.ToString()));
+                    return StatusCode(200, new { status = HttpStatusCode.OK, idToken, message = "Success, login!" });
                 }
                 else
                 {
@@ -41,6 +93,13 @@ namespace API2.Controllers
             {
                 return StatusCode(400, new { status = HttpStatusCode.BadRequest, result, message = "Email and Password invalid!" });
             }
+        }
+
+        [Authorize(Roles = "Director")]
+        [HttpGet("TestJWT")]
+        public ActionResult TestJWT()
+        {
+            return Ok("Success, Test JWT!");
         }
 
         [Route("Forget")]
@@ -89,5 +148,7 @@ namespace API2.Controllers
                 return StatusCode(404, new { status = HttpStatusCode.NotFound, result, message = "Email is not registered!" });
             }
         }
+
+        
     }
 }
