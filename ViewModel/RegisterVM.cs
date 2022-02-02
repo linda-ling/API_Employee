@@ -18,6 +18,9 @@ namespace API2.ViewModel
         //ACCOUNT
         public string Password { get; set; }
 
+        //ROLE
+        public string Name { get; set; }
+
         //EDUCATION
         public string Degree { get; set; }
         public string GPA { get; set; }

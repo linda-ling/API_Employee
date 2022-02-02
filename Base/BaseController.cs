@@ -33,7 +33,7 @@ namespace API2.Base
         }
 
         [HttpGet("{key}")]
-        public ActionResult<Entity> Get(Key key)
+        public ActionResult Get(Key key)
         {
             var result = repository.Get(key);
             //return Ok(result);
@@ -76,7 +76,7 @@ namespace API2.Base
         }
 
         [HttpDelete("{key}")]
-        public ActionResult<Entity> Delete(Key key)
+        public ActionResult Delete(Key key)
         {
             var result = repository.Delete(key);
             //return Ok(result);

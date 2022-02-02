@@ -4,9 +4,11 @@ using API2.Repository.Interface;
 using API2.ViewModel;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
+using System.Security.Claims;
 
 namespace API2.Repository.Data
 {
@@ -35,7 +37,7 @@ namespace API2.Repository.Data
             }
             else
             {
-                return 0; //Email no
+                return 3; //Email no
             }
         }
 

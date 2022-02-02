@@ -2,8 +2,10 @@
 using API2.Models;
 using API2.Repository.Data;
 using API2.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Net;
 
@@ -48,6 +50,7 @@ namespace API2.Controllers
             }
         }
 
+        [Authorize(Roles = "Director, Manager")]
         [Route("Registerdata")]
         [HttpGet]
         public ActionResult<RegisterVM> GetRegisterData()
@@ -61,6 +64,13 @@ namespace API2.Controllers
             {
                 return StatusCode(404, new { status = HttpStatusCode.NotFound, result, message = "Failed, search not found!" });
             }
+        }
+
+        //CORS
+        [HttpGet("TestCORS")]
+        public ActionResult TestCORS()
+        {
+            return Ok("Success, Test CORS!");
         }
     }
 }

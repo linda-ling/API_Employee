@@ -128,3 +128,4 @@ C:\Users\ASUS\source\repos\API\API2\bin\Debug\netcoreapp3.1\Microsoft.AspNetCore
 C:\Users\ASUS\source\repos\API\API2\bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
 C:\Users\ASUS\source\repos\API\API2\bin\Debug\netcoreapp3.1\Newtonsoft.Json.Bson.dll
 C:\Users\ASUS\source\repos\API\API2\bin\Debug\netcoreapp3.1\BCrypt.Net-Core.dll
+C:\Users\ASUS\source\repos\API\API2\bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Authentication.JwtBearer.dll
